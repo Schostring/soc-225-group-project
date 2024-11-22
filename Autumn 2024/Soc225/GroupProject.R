@@ -110,5 +110,66 @@ gdp_cat_species2 <- ggplot(new_merge, aes(x = Species_Value, fill = Prosperity_C
 gdp_cat_species2
 ggsave("species_gdp.png", plot = gdp_cat_species2, width = 8, height = 6,dpi=300)
 
-lm_model2 <- lm(Species_Value ~ GDP_Value, data = new_merge)
-summary(lm_model2)
+
+
+corr_gdp_species <- ggplot(new_merge, aes(x = log(GDP_Value), y = Species_Value)) +
+  geom_point(aes(color = Prosperity_Category), alpha = 0.7) +  # Scatter plot with points colored by prosperity category
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "solid") +  # Linear regression line
+  labs(
+    title = "Correlation Between GDP and Threatened Species",
+    x = "Log GDP Value (USD)",
+    y = "Number of Threatened Species",
+    color = "Prosperity Category"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")+
+  ylim(0,1000)
+
+corr_gdp_species2 <- ggplot(new_merge, aes(x = log10(GDP_Value), y = Species_Value)) +
+  geom_point(aes(color = Prosperity_Category), alpha = 0.7) +  # Scatter plot with points colored by prosperity category
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "solid") +  # Linear regression line
+  labs(
+    title = "Correlation Between GDP and Threatened Species",
+    x = "Log GDP Value (USD)",
+    y = "Number of Threatened Species",
+    color = "Prosperity Category"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  coord_cartesian(ylim = c(0, 1000))
+corr_gdp_species2
+
+ggsave("species_gdp_corr.png", plot = corr_gdp_species2, width = 8, height = 6,dpi=300)
+
+
+lm_model_log <- lm(Species_Value ~ log10(GDP_Value), data = new_merge)
+summary(lm_model_log) 
+
+
+par(mfrow = c(2, 2))
+
+plot(lm_model_log)
+
+
+filtered_nolow <- new_merge %>% 
+  filter(Prosperity_Category != "Low prosperity")
+
+corr_gdp_species_filtered <- ggplot(filtered_nolow, aes(x = log10(GDP_Value), y = Species_Value)) +
+  geom_point(aes(color = Prosperity_Category), alpha = 0.7) +  # Scatter plot with points colored by prosperity category
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "solid") +  # Linear regression line
+  labs(
+    title = "Correlation Between GDP and Threatened Species (Excluding Low Prosperity)",
+    x = "Log GDP Value (USD)",
+    y = "Number of Threatened Species",
+    color = "Prosperity Category"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  ylim(0,1000)
+corr_gdp_species_filtered
+
+lm_model_log2 <- lm(Species_Value ~ log10(GDP_Value), data = filtered_nolow)
+summary(lm_model_log2) 
+
+ggsave("species_gdp_corr_filtered.png", plot = corr_gdp_species_filtered, width = 8, height = 6,dpi=300)
+
